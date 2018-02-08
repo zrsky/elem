@@ -1,11 +1,12 @@
 <template>
     <div class="goodsWrapper">
-        <div class="item_left_wrapper">
+        <div class="item_left_wrapper" ref="menu">
             <ul>
-              <li v-for="value in goods" ref="category" @click="active($event)"><span>{{value.name}}</span></li>
+              <li v-for="(value,index) in goods" ref="category" @click="selectMenu(index,$event)"><span>{{value.name}}</span></li>
             </ul>
         </div>
-        <div class="item_right_wrapper">
+        <div class="item_right_wrapper" ref="content">
+        <div class="scrollWrapper">
           <div class="for_wrapper" v-for="value in goods">
               <p class="title">{{value.name}}</p>
 
@@ -22,15 +23,19 @@
               </div>
 
           </div>
+          </div>
         </div>
     </div>
 </template>
 <script>
 const errno = 0
+import BScroll from 'better-scroll';
 export default{
   data() {
     return {
-      goods:{}
+      goods:{},
+      listHeight:[],
+      scrollY:0
     }
   },
   created() {
@@ -41,26 +46,69 @@ export default{
         // if(response.errno==errno){
           self.goods = response.data.data;
           console.log(self.goods)
+          self.$nextTick(()=>{
+            self._initScroll();
+            self._calculateHeight();
+          })
         // }
     })
     .catch(function(error){
         console.log(error);
     });
+
+
   },
   methods:{
-    active:function(event){
-      console.log(this.$refs.category)
-      this.$refs.category.forEach(function(item,index){
-         item.classList.remove('active');
+    selectMenu:function(index,event){
+      if (!event._constructed) {
+          return;
+        }
+        let els = this.$refs.content.querySelectorAll(".for_wrapper");
+        let el = els[index];
+        this.contentscroll.scrollToElement(el,300);
+        console.log(index)
+    },
+    // active:function(event){
+    //   console.log(this.$refs.category)
+    //   this.$refs.category.forEach(function(item,index){
+    //      item.classList.remove('active');
+    //   })
+    //   event.currentTarget.classList.add('active');
+    // },
+    _initScroll:function(){
+      this.menuscroll = new BScroll(this.$refs.menu,{
+        //点击事件许可
+        click:true,
       })
-      event.currentTarget.classList.add('active');
-    }
+      this.contentscroll = new BScroll(this.$refs.content,{
+        //点击事件许可
+        click:true,
+        probeType:3
+      })
+      this.contentscroll.on('scroll',function(pos){
+        this.scrollY = Math.abs(Math.round(pos.y));
+        // console.log(this.scrollY)
+      })
+    },
+    _calculateHeight:function(){
+       let height = 0;
+       listHeight.push(height);
+       let foodList = this.$refs.content.getElementsByClassName('for_wrapper');
+       foodList.forEach((item,index)=>{
+          height += item.clientHeight;
+          listHeight.push(height);
+       })
+    },
   }
 }
 </script>
 <style lang="stylus" rel="stylesheet/stylus">
 .goodsWrapper
   display:flex
+  overflow:hidden
+  position:absolute
+  top:185px
+  bottom: 46px
   .item_left_wrapper
     flex:2
     font-size:12px
