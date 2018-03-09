@@ -63,6 +63,8 @@ export default {
 
 <style lang="stylus" rel="stylesheet/stylus">
  @import "./common/stylus/mini";
+  .active
+    color: #EA8D8D!important
   li
     list-style:none
     text-align:center
@@ -71,6 +73,5 @@ export default {
     height: 43px
     font-size: 14px
     border-1px(#E6E4E4)
-    router-link:link,router-link:visited,router-link:hover,router-link:active
-      color: #EA8D8D
+
 </style>

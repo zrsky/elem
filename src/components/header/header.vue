@@ -5,21 +5,21 @@
       <div class="mui-media-body">
         <h4>{{seller.name}}</h4>
         <p>{{seller.description}}/{{seller.deliveryTime}}分钟送达</p>
-        <p v-if="seller.supports"><span>{{seller.supports[0].description}}</span><a><span><i @click="showDetail()">{{seller.supports.length}}个</i><i class="mui-icon mui-icon-arrowright"></i></span></a></p>
+        <p v-if="seller.supports"><span>{{seller.supports[0].description}}</span><a><span><i @click.stop.prevent="showDetail()">{{seller.supports.length}}个</i><i class="mui-icon mui-icon-arrowright"></i></span></a></p>
       </div>
     </div>
-    <div class="notice" @click="showDetail()">
+    <div class="notice" @click.stop.prevent="showDetail()">
       <span></span>
       <span class="public">{{seller.bulletin}}</span>
       <i class="mui-icon mui-icon-arrowright"></i>
     </div>
     <!-- 弹层 -->
     <transition name="fade">
-      <div class="popup" ref="popup" v-show="detailShow" @click="hideDetail()">
+      <div class="popup" ref="popup" v-show="detailShow" @click.stop.prevent="hideDetail()">
         <div class="popup_content">
             <h4>{{seller.name}}</h4>
             <div class="star-wrapper">
-              <!-- <star :size="48" :score="seller.score"></star> -->
+              <star :size="24" :score="seller.score"></star>
             </div>
             <div class="title">
               <div class="line"></div>
@@ -43,7 +43,7 @@
             </div>
         </div>
         <div class="bulletin-close">
-          <i class="icon-close" @click="hideDetail()"></i>
+          <i class="icon-cross" @click.stop.prevent="hideDetail()"></i>
         </div>
     </div>
     </transition>
@@ -51,7 +51,7 @@
   </div>
 </template>
 <script type="text/ecmascript-6">
-// import star from '../star/star';
+import star from '../star/star';
 export default {
   props:{
     seller:{
@@ -74,9 +74,9 @@ export default {
         this.detailShow = false;
       }
     },
-  // components:{
-  //    star
-  // }
+  components:{
+     star
+  }
 
 }
 
@@ -154,6 +154,8 @@ export default {
     padding:64px 50px
     h4
       text-align:center
+    .star-wrapper
+      margin-top:20px
     .title
       margin-top:25px
       display:flex

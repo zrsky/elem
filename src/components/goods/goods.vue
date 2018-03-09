@@ -2,7 +2,7 @@
     <div class="goodsWrapper">
         <div class="item_left_wrapper" ref="menu">
             <ul>
-              <li v-for="(value,index) in goods" ref="category" @click="selectMenu(index,$event)"><span>{{value.name}}</span></li>
+              <li v-for="(value,index) in goods" ref="category" :class="{'active':currentIndex===index}" @click="selectMenu(index,$event)"><span>{{value.name}}</span></li>
             </ul>
         </div>
         <div class="item_right_wrapper" ref="content">
@@ -11,13 +11,14 @@
               <p class="title">{{value.name}}</p>
 
               <div class="food_wrapper">
-                <div v-for="food in value.foods" class="mui-card-header mui-card-media">
+                <div v-for="food in value.foods" class="mui-card-header mui-card-media" @click="selectFood(food,$event)">
                     <img :src="food.icon"/>
                     <div class="mui-media-body">
                       {{food.name}}
                       <p v-if="food.description" class="des">{{food.description}}</p>
                       <p><i>月售{{food.sellCount}}份</i>&nbsp;&nbsp;&nbsp;<i>好评率{{food.rating}}%</i></p>
-                      <i>￥6</i>
+                      <i>￥{{food.price}}</i>
+                      <cartcontrol :food="food"></cartcontrol>
                     </div>
                 </div>
               </div>
@@ -25,27 +26,64 @@
           </div>
           </div>
         </div>
+        <shopcart :selectFoods="selectFoods" :deliveryPrice="seller.deliveryPrice" :minPrice="seller.minPrice"></shopcart>
+
+        <food :food="selectedFood" ref="food"></food>
     </div>
 </template>
 <script>
+import shopcart from '../shopcart/shopcart.vue';
+import cartcontrol from '../cartcontrol/cartcontrol.vue';
+import food from '../food/food.vue';
 const errno = 0
 import BScroll from 'better-scroll';
 export default{
   data() {
     return {
-      goods:{},
+      goods:[],
       listHeight:[],
-      scrollY:0
+      scrollY:0,
+      selectedFood:{}
     }
+  },
+  props:{
+    seller:{
+      type:Object
+    }
+  },
+  computed: {
+    currentIndex() {
+        for (let i = 0; i < this.listHeight.length; i++) {
+          // console.log('zhege:'+i)
+          let height1 = this.listHeight[i];
+          let height2 = this.listHeight[i + 1];
+          if (!height2 || (this.scrollY >= height1 && this.scrollY < height2)) {
+            // console.log(height1,height2,i)
+            return i;
+          }
+        }
+        return 0;
+      },
+      selectFoods() {
+        var selectFood = [];
+        this.goods.forEach((good,index)=>{
+          good.foods.forEach((food,index)=>{
+            if(food.count){
+              selectFood.push(food);
+            }
+          })
+        })
+        return selectFood;
+      },
   },
   created() {
     const self = this;
     this.$axios.get('/api/goods')
     .then(function(response){
-        console.log(response);
+        // console.log(response);
         // if(response.errno==errno){
           self.goods = response.data.data;
-          console.log(self.goods)
+          // console.log(self.goods)
           self.$nextTick(()=>{
             self._initScroll();
             self._calculateHeight();
@@ -66,7 +104,7 @@ export default{
         let els = this.$refs.content.querySelectorAll(".for_wrapper");
         let el = els[index];
         this.contentscroll.scrollToElement(el,300);
-        console.log(index)
+        // console.log(index)
     },
     // active:function(event){
     //   console.log(this.$refs.category)
@@ -85,20 +123,33 @@ export default{
         click:true,
         probeType:3
       })
-      this.contentscroll.on('scroll',function(pos){
+      this.contentscroll.on('scroll',(pos)=>{
         this.scrollY = Math.abs(Math.round(pos.y));
         // console.log(this.scrollY)
       })
     },
     _calculateHeight:function(){
        let height = 0;
-       listHeight.push(height);
+       this.listHeight.push(height);
        let foodList = this.$refs.content.getElementsByClassName('for_wrapper');
-       foodList.forEach((item,index)=>{
-          height += item.clientHeight;
-          listHeight.push(height);
-       })
+
+       for(var i=0,len=foodList.length;i<len;i++){
+          height += foodList[i].clientHeight;
+          this.listHeight.push(height);
+       }
     },
+    selectFood:function(food,event){
+      if(!event._constructed){
+          return;
+      }
+      this.selectedFood = food;
+      this.$refs.food.show();
+    }
+  },
+  components:{
+    shopcart:shopcart,
+    cartcontrol:cartcontrol,
+    food:food,
   }
 }
 </script>
@@ -158,5 +209,20 @@ export default{
             color:#93999f
         i
           color:#FC1515
+        .circle_cart
+          height:18px
+          position:relative
+          display:inline-block
+          margin-left:70%
+          .food_count
+            display:inline-block
+            color:#93999f
+            position:absolute
+            left: -15px
+            top: 4px
+          .circle_decrease,.circle_add
+            color:#00a0dc
+            position:absolute
+
 
 </style>
