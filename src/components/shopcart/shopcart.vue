@@ -2,9 +2,9 @@
 		<div class="cart">
 			<div class="content">
 
-			<div class="cartIcon">
+			<div class="cartIcon" @click="isShow">
 			<div class="outerCircle">
-				<div class="num"><span>{{totalCount}}</span></div>
+				<div v-show="totalCount" class="num"><span>{{totalCount}}</span></div>
 				<div class="innerCircle" :class="cartColor">
 					<i class="icon-shopping-cart"></i>
 				</div>
@@ -16,27 +16,37 @@
 		<div class="pay" :class="payClass">{{payDesc}}</div>
 
 	</div>
-	<div class="food_list">
-				<div class="food_list_top">
-					<h4 class="left">购物车</h4>
-					<span class="right" @click="clearFoods">清空</span>
-				</div>
-				<div class="food_list_body">
-					<ul>
-						<li v-for="food in selectFoods">
-							<span class="name">{{food.name}}</span>
-							<div class="price">	<span>￥{{food.price}}</span></div>
-							<cartcontrol :food="food"></cartcontrol>
-						</li>
-					</ul>
-				</div>
-			</div>
-		</div>
+	<transition name="fade">
+   <div ref="food_list" class="food_list" v-show="isCartShow">
+        <div class="food_list_content">
+          <div class="food_list_top">
+            <h4 class="left">购物车</h4>
+            <span class="right" @click="clearFoods">清空</span>
+          </div>
+          <div class="food_list_body"  style="height:60vw;overflow:hidden;" ref="foodList">
+            <ul ref="ul_food_list">
+              <li v-for="food in selectFoods">
+                <span class="name">{{food.name}}</span>
+                <div class="price"> <span>￥{{food.price}}</span></div>
+                <cartcontrol :food="food"></cartcontrol>
+              </li>
+            </ul>
+          </div>
+        </div>
+  </div>
+  </transition>
+</div>
 
 </template>
 <script type="text/ecmascript-6">
+import BScroll from 'better-scroll';
 import cartcontrol from '../cartcontrol/cartcontrol.vue';
 	export default {
+    data() {
+      return {
+        isCartShow:false,
+      }
+    },
 		props: {
 			selectFoods: {
 				type:Array,
@@ -101,11 +111,28 @@ import cartcontrol from '../cartcontrol/cartcontrol.vue';
 				}
 			},
 		},
+    mounted(){
+      this._initScroll();
+    },
 		methods:{
       clearFoods() {
+        this.isCartShow = false;
         this.selectFoods.forEach((food) => {
           food.count = 0;
         });
+
+      },
+      _initScroll() {
+        this.scroll = new BScroll(this.$refs.foodList,{
+          // 开启点击事件
+          click:true,
+        })
+      },
+      isShow() {
+        if(this.selectFoods.length){
+          this.isCartShow = !this.isCartShow;
+
+        }
       }
 		},
 		components:{
@@ -152,7 +179,7 @@ import cartcontrol from '../cartcontrol/cartcontrol.vue';
 					span
 						position:absolute
 						top:-16px
-						transform:translatX(-50%)
+						transform:translate(-50%)
 						left:50%
 						font-size:9px
 				.innerCircle
@@ -195,9 +222,7 @@ import cartcontrol from '../cartcontrol/cartcontrol.vue';
 		position:absolute
 		bottom:50px
 		width:100%
-
 		z-index:-1
-
 		.food_list_top
 			height:44px
 			line-height:44px

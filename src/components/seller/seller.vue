@@ -9,8 +9,8 @@
                 <span class="ratingCount">({{seller.ratingCount}})</span>
                 <span class="sellCount">月售{{seller.sellCount}}单</span>
               </div>
-              <div class="seller_msg_right">
-                <p><i class="mui-icon mui-icon-star"></i></p>
+              <div @click="isCollect()" class="seller_msg_right">
+                <p><i class="mui-icon mui-icon-star" :class="{collect:collect}"></i></p>
                 <span>收藏</span>
               </div>
             </div>
@@ -36,10 +36,12 @@
               <p class=
               "content">{{seller.bulletin}}</p>
             </div>
-            <div class="avtivity">
+            <div class="activity">
               <ul>
-                <li>asdfasda</li>
-                <li>asdfasda</li>
+                <li v-for="support in seller.supports">
+                  <span class="icon" :class="classMap[support.type]"></span>
+                  <span class="content">{{support.description}}</span>
+                </li>
               </ul>
             </div>
           </div>
@@ -50,10 +52,12 @@
 import BScroll from 'better-scroll';
 import star from '../star/star.vue';
 import split from '../split/split.vue';
+let classMap = ['decrease', 'discount', 'special', 'invoice', 'guarantee'];
 export default {
   data(){
     return{
-
+      classMap:classMap,
+      collect:false
     }
   },
   props:{
@@ -69,7 +73,10 @@ export default {
       this.scroll = new BScroll(this.$refs.seller,{
         click:true,
       })
-    }
+    },
+    isCollect() {
+      this.collect = !this.collect;
+    },
   },
   components: {
     star,
@@ -82,7 +89,7 @@ export default {
   .seller_wrapper
     background:#fff
     overflow:hidden
-
+    height:500px
     .seller_top
       padding:15px 20px
       border-1px(rgba(7,17,27,0.1))
@@ -101,8 +108,11 @@ export default {
             font-size:12px
         .seller_msg_right
           flex:0.2
-          p i
+          p
+           i
             color:#d4d6d9
+            &.collect
+              color:#f01414
           span
             font-size:12px
             color:#4d555d
@@ -144,10 +154,31 @@ export default {
           padding:0 10px
       .activity
         ul
-          padding:0
+          padding:0 10px
           li
-            padding: 20px 0
+            padding: 15px 0
             text-align:left
             border-top:1px solid rgba(7,17,27,0.1)
+            display:flex
+            .content
+              color:#07111b
+              font-size:12px
+              flex:3
+            .icon
+              display:inline-block
+              width:15px
+              height:15px
+              flex:0.2
+              margin-top:2px
+            .decrease
+              bg-image('decrease_4')
+            .discount
+              bg-image('discount_4')
+            .special
+              bg-image('special_4')
+            .invoice
+              bg-image('invoice_4')
+            .guarantee
+              bg-image('guarantee_4')
 
 </style>

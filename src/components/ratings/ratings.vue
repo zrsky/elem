@@ -44,6 +44,7 @@
   import star from '../star/star.vue';
   import split from '../split/split.vue';
   import ratingSelect from '../ratingSelect/ratingSelect.vue';
+  import dateFormat from '../../common/js/date.js';
   const ALL = 2;
   const positive = 0;
   const negative = 1;
@@ -76,7 +77,11 @@
 
                 if(response.data.errno ==errno){
                   that.ratings = response.data.data
-
+                  that.ratings.forEach((rating,index)=>{
+                    console.log(new Date(rating.rateTime).format("yyyy-MM-dd hh:mm:ss"))
+                    rating.rateTime = new Date(rating.rateTime).format("yyyy-MM-dd hh:mm:ss")
+                  })
+                  console.log(that.ratings)
                 }
 
                 // console.log('改变后'+JSON.stringify(that.ratings))
@@ -90,9 +95,7 @@
     },
     mounted(){
        this.$nextTick(()=>{
-            setTimeout(()=>{
-              // this._initScroll();
-            }, 0)
+              this._initScroll();
         });
      },
     methods:{
@@ -130,6 +133,7 @@
   .ratings
     background:#fff
     overflow:hidden
+    height:500px
     .grade_wrapper
       padding:20px 0
       display:flex
@@ -148,7 +152,7 @@
       .grade_right
         flex:2
         text-align:left
-        padding-left:20px
+        padding-left:3vw
         p
           color:#07111b
           font-size:12px
@@ -186,7 +190,7 @@
                 font-size:10px
                 margin-left:10px
             .right
-              flex:0.5
+              flex:1
               text-align:right
               font-size:10px
               .time

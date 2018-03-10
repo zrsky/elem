@@ -155,6 +155,7 @@ export default{
 </script>
 <style lang="stylus" rel="stylesheet/stylus">
 .goodsWrapper
+  width:100%
   display:flex
   overflow:hidden
   position:absolute
